@@ -17,6 +17,6 @@ class Video():
         if audio and video:
             self.video.getbest().download(path)
         if audio:
-            self.video.getbestaudio().download(path)
+            self.video.getbestaudio(preftype = 'mp3').download(path)
         if video:
-            self.video.getbestvideo().download(path)
+            self.video.getbestvideo(preftype = 'mp4').download(path)
