@@ -3,12 +3,17 @@ import os
 import time
 from skimage.metrics import structural_similarity as ssim
 
+'''
+Take unique screenshots of every 100 frames
+
+'''
 class Screenie():
     def __init__(self, vid_path, fname = 'screenies'):
         self.path = vid_path
         
-        self.res_path = self.make_folder()
+        self.res_path = self.make_folder(fname)
     
+    # Make a new folder "fname"
     def make_folder(self, name = 'screenies'):
         try:
             if not os.path.exists(name):
@@ -26,7 +31,7 @@ class Screenie():
             print("error determining img similarity")
     
     # Take unique screenshots of the video (frame_same() is used to determine similarity)
-    def take_screenies(self, interval = 5):
+    def take_screenies(self, interval = 100):
         vid = cv2.VideoCapture(self.path)
         
         count = 0
