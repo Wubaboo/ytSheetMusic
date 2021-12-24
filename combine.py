@@ -11,6 +11,7 @@ Concatenate the list of images on each page, and save as PDF
 
 
 class Join():
+    # folder is a path to a list of images
     def __init__(self, folder, trim = False):
         
         self.images = self.load(folder)
@@ -60,6 +61,7 @@ class Join():
             pages.append(page)
         return pages
     
+    # Save the file
     def save(self, fname):
         folder = "Sheet Music"
         if not os.path.exists(folder):

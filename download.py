@@ -11,8 +11,9 @@ class Video():
     def __init__(self, url):
         self.url = url
         self.video = pafy.new(url)
-        #self.title = 
-    
+        
+    ## Download the youtube video from self.url saving it with the
+    ## given filename
     def download(self, filename = '', audio = True, video = True):
         if audio and video:
             self.video.getbest().download(filename)

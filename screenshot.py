@@ -5,7 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 '''
-Take unique screenshots of every 100 frames
+Take unique screenshots of frames and extract only the sheet music portions
+ of the frames
 
 s = Screenie(video_file, fname = folder_name)
 s.take_screenies()
@@ -55,8 +56,9 @@ class Screenie():
         b_pixels = np.where(gray <= black)
         w_pixels = np.where(gray >= white)
         return (len(b_pixels[0]) + len(w_pixels[0])) / gray.size
-        
-    def crop_ends(self, im, similar = 0.05, size_min_ratio = 0.3):
+    
+    # Remove non sheet music portions of the image
+    def crop_ends(self, im, similar = 0.05, size_min_ratio = 0.25):
         gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
         thresh = cv.threshold(gray, 254, 255, cv.THRESH_BINARY)
         inverse = 255 - thresh[1]
@@ -73,10 +75,9 @@ class Screenie():
         
         cropped = im[x1:x2, y1:y2]
         if (cropped.size / gray.size) > size_min_ratio:
-            
+            return im[0, 0]
         return im[x1:x2, y1:y2]
     
-    def prop_of_screen()
     # Take unique screenshots of the video (frame_same() is used to determine similarity)
     def take_screenies(self, interval = 50, bw_ratio_min = 0.3):
         vid = cv.VideoCapture(self.path)
@@ -86,12 +87,17 @@ class Screenie():
         prev_frame = 0
         while True:
             ret, frame = vid.read()
+            # If read incorrectly, break
             if not ret: break
+            # for every $interval frames
             if count % interval == 0:
                 if self.thresholding:
                     frame = self.grayscale(frame)
+                # Remove non sheet music portions
                 frame = self.crop_ends(frame)
+                # Minimum image size, minimum black white ratio
                 if (frame.size >= 5000) and (self.bw_ratio(frame) > bw_ratio_min):
+                    # If it's similar to previous frame, ignore
                     if ((isinstance(prev_frame, int)) or (not self.frame_same(frame, prev_frame))):
                         name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(2))
                         print("Creating ", name)
@@ -104,6 +110,7 @@ class Screenie():
         vid.release()
         cv.destroyAllWindows()
 
+# Show an image
 def show(ims):
     if isinstance(ims, list):
         for i in range(len(ims)):
