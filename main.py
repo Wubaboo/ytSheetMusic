@@ -7,10 +7,12 @@ import os
 '''
 From a Youtube Video where video is sheet music, 
 Take screenshots and join screenshots into sheet music
+- Need FFMPEG in the directory
 
 TO DO:
     - In Screenshot.py, use relative area of the bounded rectangle to determine sheet 
     music regions?
+    
 '''
 
 # url: path to the Youtube Video
