@@ -9,14 +9,19 @@ From a Youtube Video where video is sheet music,
 Take screenshots and join screenshots into sheet music
 '''
 
-def main(url, folder_name, file_name, trim = False, thresholding = False):
+# url: path to the Youtube Video
+# folder_name: is the name to label the folder containing all the screenshots
+# file_name: Name to save the downloaded video and the final pdf
+# trim : If there is a border around the sheet music, it can be cropped out
+# 
+def main(url, folder_name, file_name, trim = False, thresholding = False, hands = False):
     try:
         video_file = file_name + '.mp4'
         if video_file not in os.listdir():
             v = Video(url)
             v.download(video_file)
             
-        s = Screenie(video_file, fname = folder_name, thresholding = thresholding)
+        s = Screenie(video_file, fname = folder_name, thresholding = thresholding, hands = hands)
         s.take_screenies()
         
         j = Join(folder_name, trim = trim)

@@ -12,11 +12,12 @@ s = Screenie(video_file, fname = folder_name)
 s.take_screenies()
 '''
 class Screenie():
-    def __init__(self, vid_path, fname = 'screenies', thresholding = False):
+    def __init__(self, vid_path, fname = 'screenies', thresholding = False, hands = False):
         self.path = vid_path
         
         self.res_path = self.make_folder(fname)
         self.thresholding = thresholding
+        self.trim = hands
         
     # Make a new folder "fname"
     def make_folder(self, name = 'screenies'):
@@ -28,7 +29,7 @@ class Screenie():
             return 'screenies'
     
     # Determines if img1 and img2 are similar (at least a score of thresh)
-    def frame_same(self, img1, img2, thresh = 0.84):
+    def frame_same(self, img1, img2, thresh = 0.9):
         # turn images black and white
         img1_gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
         img1_inverse = 255 - img1_gray
@@ -40,6 +41,7 @@ class Screenie():
         im2 = cv.resize(img2, (img1.shape[1],img1.shape[0]))
         im1 = cv.resize(img1, (img2.shape[1], img2.shape[0]))
         score = max(ssim(img1, im2), ssim(img2, im1))
+        #print(score)
         return score >= thresh
     
 
@@ -48,26 +50,29 @@ class Screenie():
         # Convert to grayscale
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         # Convert to black and white
-        thresh = cv.threshold(gray, 250, 255, cv.THRESH_BINARY)[1]
+        thresh = cv.threshold(gray, 240, 255, cv.THRESH_BINARY)[1]
         # Swap black and white
-        inverse = 255 - thresh
+        #inverse = 255 - thresh
         # Find contours in the image and get the contour with second largest area
         # (First largest contour is the entire frame)
-        contours, hierarchy = cv.findContours(inverse, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+        if len(contours) < 1:
+            return img[0:0, 0:0]
         contours = sorted(contours, key = lambda c: cv.contourArea(c))
-        second_largest = contours[-2]
+        largest = contours[-1]
+        con_min = largest.min(0)[0]
+        con_max = largest.max(0)[0]
+        # Crop relevant area
+        return img[con_min[1]:con_max[1], con_min[0]:con_max[0]]
         
-        
-        #blank = np.zeros(img.shape, dtype= 'uint8')
-        
-        
-    
+    ## OBSOLETE
     # Convert img to Black and White
     def grayscale(self, img):
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         threshold, thresh = cv.threshold(gray, 100, 255, cv.THRESH_BINARY)
         return thresh
     
+    ## OBSOLETE
     # Smooth a curve, 
     # https://stackoverflow.com/questions/20618804/how-to-smooth-a-curve-in-the-right-way
     def smooth(self, y, box_pts = 10):
@@ -75,6 +80,7 @@ class Screenie():
         y_smooth = np.convolve(y, box, mode='same')
         return y_smooth
     
+    ## OBSOLETE
     # Find the ratio between black and white pixels and coloured pixels
     def bw_ratio(self, im, black = 10, white = 245):
         gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
@@ -83,7 +89,9 @@ class Screenie():
         w_pixels = np.where(gray >= white)
         return (len(b_pixels[0]) + len(w_pixels[0])) / gray.size
     
+    ## OBSOLETE 
     # Remove non sheet music portions of the image
+    # Tried with horizontal projection, and black and white runs
     def crop_ends(self, im, similar = 1, size_min_ratio = 0.1):
         gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
         thresh = cv.threshold(gray, 254, 255, cv.THRESH_BINARY)
@@ -120,9 +128,11 @@ class Screenie():
                 if self.thresholding:
                     frame = self.grayscale(frame)
                 # Remove non sheet music portions
-                frame = self.crop_ends(frame)
+                if self.trim:
+                    frame = self.contours(frame)
+                    #frame = self.crop_ends(frame)
                 # Minimum image size, minimum black white ratio
-                if (frame.size >= 1000) and (self.bw_ratio(frame) > bw_ratio_min):
+                if (frame.size >= 1000):
                     # If it's similar to previous frame, ignore
                     if ((isinstance(prev_frame, int)) or (not self.frame_same(frame, prev_frame))):
                         name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(2))
