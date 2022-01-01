@@ -135,7 +135,7 @@ class Screenie():
                 if (frame.size >= 1000):
                     # If it's similar to previous frame, ignore
                     if ((isinstance(prev_frame, int)) or (not self.frame_same(frame, prev_frame))):
-                        name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(2))
+                        name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(3))
                         print("Creating ", name)
                         print(count)
                         cv.imwrite(name, frame)
