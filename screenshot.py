@@ -132,7 +132,7 @@ class Screenie():
                     frame = self.contours(frame)
                     #frame = self.crop_ends(frame)
                 # Minimum image size, minimum black white ratio
-                if (frame.size >= 1000):
+                if (frame.size >= 1000) and (self.bw_ratio(frame) > bw_ratio_min):
                     # If it's similar to previous frame, ignore
                     if ((isinstance(prev_frame, int)) or (not self.frame_same(frame, prev_frame))):
                         name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(3))
