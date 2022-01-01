@@ -12,7 +12,7 @@ Concatenate the list of images on each page, and save as PDF
 
 class Join():
     # folder is a path to a list of images
-    def __init__(self, folder, trim = False):
+    def __init__(self, folder, trim = True):
         
         self.images = self.load(folder)
         if trim:
