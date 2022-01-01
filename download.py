@@ -21,7 +21,7 @@ class Video():
     ## given filename
     def download(self, filename = '', audio = True, video = True):
         if audio and video:
-            self.video.getbest().download()
+            self.video.getbest().download(filename)
         elif audio:
             aud_fname = self.video.getbestaudio().download()
             self.convert(aud_fname, f'downloads/{filename}.mp3')
