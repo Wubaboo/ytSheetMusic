@@ -26,15 +26,41 @@ class Screenie():
             return name
         except:
             return 'screenies'
-            
     
     # Determines if img1 and img2 are similar (at least a score of thresh)
-    def frame_same(self, img1, img2, thresh = 0.87):
-        return (img1.shape == img2.shape) and (ssim(img1, img2, multichannel = True) >= thresh)
-        try:
-            return (img1.shape == img2.shape) and (ssim(img1, img2, multichannel = True) >= thresh)
-        except:
-            print("error determining img similarity")
+    def frame_same(self, img1, img2, thresh = 0.84):
+        # turn images black and white
+        img1_gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+        img1_inverse = 255 - img1_gray
+        img2_gray = cv.cvtColor(img2, cv.COLOR_BGR2GRAY) 
+        img2_inverse = 255 - img2_gray
+        img1 = cv.threshold(img1_inverse, 250, 255, cv.THRESH_BINARY)[1]
+        img2 = cv.threshold(img2_inverse, 250, 255, cv.THRESH_BINARY)[1]
+        # Resize images to the same shape, and compare the similarities
+        im2 = cv.resize(img2, (img1.shape[1],img1.shape[0]))
+        im1 = cv.resize(img1, (img2.shape[1], img2.shape[0]))
+        score = max(ssim(img1, im2), ssim(img2, im1))
+        return score >= thresh
+    
+
+    # Try extracting the rectangle surrounding the region of interest
+    def contours(self, img):
+        # Convert to grayscale
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        # Convert to black and white
+        thresh = cv.threshold(gray, 250, 255, cv.THRESH_BINARY)[1]
+        # Swap black and white
+        inverse = 255 - thresh
+        # Find contours in the image and get the contour with second largest area
+        # (First largest contour is the entire frame)
+        contours, hierarchy = cv.findContours(inverse, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key = lambda c: cv.contourArea(c))
+        second_largest = contours[-2]
+        
+        
+        #blank = np.zeros(img.shape, dtype= 'uint8')
+        
+        
     
     # Convert img to Black and White
     def grayscale(self, img):
@@ -58,7 +84,7 @@ class Screenie():
         return (len(b_pixels[0]) + len(w_pixels[0])) / gray.size
     
     # Remove non sheet music portions of the image
-    def crop_ends(self, im, similar = 0.05, size_min_ratio = 0.25):
+    def crop_ends(self, im, similar = 1, size_min_ratio = 0.1):
         gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
         thresh = cv.threshold(gray, 254, 255, cv.THRESH_BINARY)
         inverse = 255 - thresh[1]
@@ -74,12 +100,12 @@ class Screenie():
         y1, y2 = vert_mins[0].min(), vert_mins[0].max()
         
         cropped = im[x1:x2, y1:y2]
-        if (cropped.size / gray.size) > size_min_ratio:
+        if (cropped.size / im.size) < size_min_ratio:
             return im[0, 0]
         return im[x1:x2, y1:y2]
     
     # Take unique screenshots of the video (frame_same() is used to determine similarity)
-    def take_screenies(self, interval = 50, bw_ratio_min = 0.3):
+    def take_screenies(self, interval = 100, bw_ratio_min = 0.2):
         vid = cv.VideoCapture(self.path)
         
         count = 0
@@ -96,7 +122,7 @@ class Screenie():
                 # Remove non sheet music portions
                 frame = self.crop_ends(frame)
                 # Minimum image size, minimum black white ratio
-                if (frame.size >= 5000) and (self.bw_ratio(frame) > bw_ratio_min):
+                if (frame.size >= 1000) and (self.bw_ratio(frame) > bw_ratio_min):
                     # If it's similar to previous frame, ignore
                     if ((isinstance(prev_frame, int)) or (not self.frame_same(frame, prev_frame))):
                         name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(2))
