@@ -29,7 +29,7 @@ class Screenie():
             return 'screenies'
     
     # Determines if img1 and img2 are similar (at least a score of thresh)
-    def frame_same(self, img1, img2, thresh = 0.9):
+    def frame_same(self, img1, img2, thresh = 0.95):
         # turn images black and white
         img1_gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
         img1_inverse = 255 - img1_gray
