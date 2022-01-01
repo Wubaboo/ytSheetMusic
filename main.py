@@ -14,7 +14,7 @@ Take screenshots and join screenshots into sheet music
 # file_name: Name to save the downloaded video and the final pdf
 # trim : If there is a border around the sheet music, it can be cropped out
 # 
-def main(url, folder_name, file_name, trim = False, thresholding = False, hands = False):
+def main(url, folder_name, file_name, trim = True, thresholding = False, hands = False):
     try:
         video_file = file_name + '.mp4'
         if video_file not in os.listdir():
@@ -24,7 +24,7 @@ def main(url, folder_name, file_name, trim = False, thresholding = False, hands 
         s = Screenie(video_file, fname = folder_name, thresholding = thresholding, hands = hands)
         s.take_screenies()
         
-        j = Join(folder_name, trim = trim)
+        j = Join(folder_name)
         j.save(file_name + '.pdf')
         
     except:

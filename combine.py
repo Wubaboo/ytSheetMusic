@@ -39,9 +39,9 @@ class Join():
     # Stolen from: https://stackoverflow.com/questions/10615901/trim-whitespace-using-pil/10616717#10616717
     def trim_img(self, im, min_white = 700//3):
         corners = [(0,0), (im.size[0]-1, 0), (0, im.size[1]-1), (im.size[0]-1, im.size[1]-1)]
-        for c in corners:
-            if sum(im.getpixel(c)) >= min_white:
-                return im
+        white_corners = [sum(im.getpixel(c)) >= min_white for c in corners]
+        if all(white_corners):
+            return im
         bg = Image.new(im.mode, im.size, im.getpixel((0,0)))
         diff = ImageChops.difference(im, bg)
         diff = ImageChops.add(diff, diff, 2.0, -100)
