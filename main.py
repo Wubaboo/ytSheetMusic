@@ -12,6 +12,7 @@ Take screenshots and join screenshots into sheet music
 TO DO:
     - In Screenshot.py, use relative area of the bounded rectangle to determine sheet 
     music regions?
+    - Manually input top left and bottom right coordinates to extract in each frame
     
 '''
 
@@ -21,8 +22,9 @@ TO DO:
 # folder_name: is the name to label the folder containing all the screenshots
 # file_name: Name to save the downloaded video and the final pdf
 # trim : If there is a border around the sheet music, it can be cropped out
-# 
-def main(url, folder_name, file_name, trim = True, thresholding = False, hands = False):
+# hands: if there are hands in the picture (or non sheet music elements)
+def main(url, file_name, trim = True, thresholding = False, hands = False):
+    folder_name = ''.join(file_name.split(' '))
     try:
         video_file = file_name + '.mp4'
         if video_file not in os.listdir():
