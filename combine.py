@@ -71,6 +71,6 @@ class Join():
         if not os.path.exists(folder):
             os.makedirs(folder)
         self.pages[0].save('Sheet Music/{}'.format(fname),
-                           resolution = 300, save_all = True, append_images=self.pages[1:])
+                           resolution = 50, save_all = True, append_images=self.pages[1:])
         
         
