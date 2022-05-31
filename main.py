@@ -7,13 +7,14 @@ import os
 '''
 From a Youtube Video where video is sheet music, 
 Take screenshots and join screenshots into sheet music
-- Need FFMPEG in the directory
+- Need FFMPEG in the PATH (Or in the directory)
+- Need yt-dlp in the PATH (Or in the directory)
+
 
 TO DO:
     - In Screenshot.py, use relative area of the bounded rectangle to determine sheet 
     music regions?
     - Manually input top left and bottom right coordinates to extract in each frame
-    
 '''
 
 
@@ -26,12 +27,11 @@ TO DO:
 def main(url, file_name, trim = True, thresholding = False, hands = False):
     folder_name = ''.join(file_name.split(' '))
     try:
-        video_file = file_name + '.mp4'
-        if video_file not in os.listdir():
+        if file_name + '.mp4' not in os.listdir():
             v = Video(url)
-            v.download(video_file)
+            v.download(file_name, form = 'mp4')
             
-        s = Screenie(video_file, fname = folder_name, thresholding = thresholding, hands = hands)
+        s = Screenie(file_name +'.mp4', fname = folder_name, thresholding = thresholding, hands = hands)
         s.take_screenies()
         
         j = Join(folder_name)
