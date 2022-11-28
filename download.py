@@ -36,13 +36,9 @@ class Video():
 class Video():
     def __init__(self, url):
         self.url = url
-        self.path = os.getcwd()
         
-    def download(self, fname = '', form = 'mp4', path = ''):
-        if path:
-            self.path = path
-            
+    def download(self, fname = '', form = 'mp4'):
         if fname:
-            os.system(f'yt-dlp --paths {self.path} --format {form} -o "{fname}.{form}" {self.url}')
+            os.system(f'yt-dlp --format {form} -o "{fname}.{form}" {self.url}')
         else:
-            os.system(f'yt-dlp --paths {self.path} --format {form} {self.url}')
+            os.system(f'yt-dlp --format {form} {self.url}')

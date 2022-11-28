@@ -3,12 +3,7 @@ import os
 
 '''
 Concatenate the list of images on each page, and save as PDF
-
-
-## TO DO
-    - Detect and crop only sheet music regions
 '''
-
 
 class Join():
     # folder is a path to a list of images
@@ -18,6 +13,7 @@ class Join():
         if trim:
             self.images = [self.trim_img(i) for i in self.images]
         self.page_size = (int(8.5 * 300), int(11 * 300))
+        
         self.images_resized = [self.resize_img(i) for i in self.images]
         self.pages = self.fit_to_pages(self.images_resized)
         
@@ -62,8 +58,11 @@ class Join():
                 acc_height += imgs[i].height
                 i += 1
                 if i >= len(imgs): break
-            page = page.crop((0, 0, self.page_size[0], acc_height))
-            pages.append(page)
+            page =   page.crop((0, 0, self.page_size[0], acc_height))
+            blank = Image.new('1', self.page_size, color = 'white')
+            padding = (self.page_size[1] - acc_height) // 2
+            blank.paste(page, (0, padding))
+            pages.append(blank)
         return pages
     
     # Save the file
@@ -72,6 +71,6 @@ class Join():
         if not os.path.exists(folder):
             os.makedirs(folder)
         self.pages[0].save('Sheet Music/{}'.format(fname),
-                           resolution = 50, save_all = True, append_images=self.pages[1:])
+                           resolution = 300, save_all = True, append_images=self.pages[1:])
         
         

@@ -10,17 +10,10 @@ Take screenshots and join screenshots into sheet music
 - Need FFMPEG in the PATH (Or in the directory)
 - Need yt-dlp in the PATH (Or in the directory)
 
-
-TO DO:
-    - In Screenshot.py, use relative area of the bounded rectangle to determine sheet 
-    music regions?
-    - Manually input top left and bottom right coordinates to extract in each frame
 '''
 
 
-
 # url: path to the Youtube Video
-# folder_name: is the name to label the folder containing all the screenshots
 # file_name: Name to save the downloaded video and the final pdf
 # trim : If there is a border around the sheet music, it can be cropped out
 # hands: if there are hands in the picture (or non sheet music elements)
@@ -40,8 +33,3 @@ def main(url, file_name, trim = True, thresholding = False, hands = False):
     except:
         print("Error")
 
-'''
-if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
-    #print(sys.argv[1], sys.argv[2], sys.argv[3])
-'''

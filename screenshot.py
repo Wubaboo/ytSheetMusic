@@ -10,10 +10,6 @@ Take unique screenshots of frames and extract only the sheet music portions
 
 s = Screenie(video_file, fname = folder_name)
 s.take_screenies()
-
-TO DO:
-    - In Screenshot.py, use relative area of the bounded rectangle to determine sheet 
-    music regions?
 '''
 class Screenie():
     def __init__(self, vid_path, fname = 'screenies', thresholding = False, hands = False):
