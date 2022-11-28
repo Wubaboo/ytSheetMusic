@@ -19,5 +19,5 @@ Get sheet music from youtube videos
   - Concatenates screenshotted images to fit a page
   - Save as PDF
   
-![youtube screenshot with sheet music](https://github.com/Wubaboo/ytSheetMusic/blob/master/img/YoutubeVideo.png?raw=true)
+![youtube screenshot with sheet music](https://github.com/Wubaboo/ytSheetMusic/blob/master/img/YoutubeVideo.png)
 
