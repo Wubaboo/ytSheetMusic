@@ -21,7 +21,7 @@ Get sheet music from youtube videos
 
 1. Get youtube video with sheet music in it
 
-![youtube screenshot with sheet music](https://github.com/Wubaboo/ytSheetMusic/blob/master/img/YoutubeVideo.png?raw=true)
+![youtube screenshot with sheet music](https://github.com/Wubaboo/ytSheetMusic/blob/main/img/YoutubeVideo.png?raw=true)
 2. Run main.py`main(url, 'Clair de Lune', hands = True)` 
 3. Check 'Sheet Music' folder in the directory for the resulting PDF
-![resulting pdf](https://github.com/Wubaboo/ytSheetMusic/blob/master/img/res.png?raw=true)
+![resulting pdf](https://github.com/Wubaboo/ytSheetMusic/blob/main/img/res.png?raw=true)
