@@ -35,13 +35,12 @@ class Screenie():
         img1_inverse = 255 - img1_gray
         img2_gray = cv.cvtColor(img2, cv.COLOR_BGR2GRAY) 
         img2_inverse = 255 - img2_gray
-        img1 = cv.threshold(img1_inverse, 250, 255, cv.THRESH_BINARY)[1]
-        img2 = cv.threshold(img2_inverse, 250, 255, cv.THRESH_BINARY)[1]
+        img1 = cv.threshold(img1_inverse, 150, 255, cv.THRESH_BINARY)[1]
+        img2 = cv.threshold(img2_inverse, 150, 255, cv.THRESH_BINARY)[1]
         # Resize images to the same shape, and compare the similarities
         im2 = cv.resize(img2, (img1.shape[1],img1.shape[0]))
         im1 = cv.resize(img1, (img2.shape[1], img2.shape[0]))
         score = max(ssim(img1, im2), ssim(img2, im1))
-        #print(score)
         return score >= thresh
     
     
