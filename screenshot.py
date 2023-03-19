@@ -2,7 +2,7 @@ import cv2 as cv
 import os
 from skimage.metrics import structural_similarity as ssim
 import numpy as np
-import matplotlib.pyplot as plt
+from awsServices import bucket, uploadFile
 
 '''
 Take unique screenshots of frames and extract only the sheet music portions
@@ -12,13 +12,17 @@ s = Screenie(video_file, fname = folder_name)
 s.take_screenies()
 '''
 class Screenie():
-    def __init__(self, vid_path, fname = 'screenies', thresholding = False, hands = False):
+    def __init__(self, vid_path, fname = 'screenies', hands = False, threshold = 0.9):
         self.path = vid_path
         
         self.res_path = self.make_folder(fname)
-        self.thresholding = thresholding
+        self.threshold = threshold
         self.trim = hands
-        
+    
+    def upload_images(self):
+        for file in os.listdir(self.res_path):
+            uploadFile(filename = f"{self.res_path}/{file}", bucket=bucket)
+            
     # Make a new folder "fname"
     def make_folder(self, name = 'screenies'):
         try:
@@ -29,7 +33,9 @@ class Screenie():
             return 'screenies'
     
     # Determines if img1 and img2 are similar (at least a score of thresh)
-    def frame_same(self, img1, img2, thresh = 0.95):
+    def frame_same(self, img1, img2, thresh = None):
+        if not thresh:
+            thresh = self.threshold
         # turn images black and white
         img1_gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
         img1_inverse = 255 - img1_gray
@@ -52,7 +58,6 @@ class Screenie():
         # Convert to black and white
         thresh = cv.threshold(gray, 240, 255, cv.THRESH_BINARY)[1]
         # Swap black and white
-        #inverse = 255 - thresh
         # Find contours in the image and get the contour with second largest area
         # (First largest contour is the entire frame)
         contours, hierarchy = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
@@ -64,23 +69,7 @@ class Screenie():
         con_max = largest.max(0)[0]
         # Crop relevant area
         return img[con_min[1]:con_max[1], con_min[0]:con_max[0]]
-        
-    ## OBSOLETE
-    # Convert img to Black and White
-    def grayscale(self, img):
-        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        threshold, thresh = cv.threshold(gray, 100, 255, cv.THRESH_BINARY)
-        return thresh
     
-    ## OBSOLETE
-    # Smooth a curve, 
-    # https://stackoverflow.com/questions/20618804/how-to-smooth-a-curve-in-the-right-way
-    def smooth(self, y, box_pts = 10):
-        box = np.ones(box_pts)/box_pts
-        y_smooth = np.convolve(y, box, mode='same')
-        return y_smooth
-    
-    ## OBSOLETE
     # Find the ratio between black and white pixels and coloured pixels
     def bw_ratio(self, im, black = 10, white = 245):
         gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
@@ -88,29 +77,6 @@ class Screenie():
         b_pixels = np.where(gray <= black)
         w_pixels = np.where(gray >= white)
         return (len(b_pixels[0]) + len(w_pixels[0])) / gray.size
-    
-    ## OBSOLETE 
-    # Remove non sheet music portions of the image
-    # Tried with horizontal projection, and black and white runs
-    def crop_ends(self, im, similar = 1, size_min_ratio = 0.1):
-        gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
-        thresh = cv.threshold(gray, 254, 255, cv.THRESH_BINARY)
-        inverse = 255 - thresh[1]
-         
-        vert_proj = np.sum(inverse, 0)
-        hori_proj = np.sum(inverse, 1)
-        plt.plot(vert_proj)
-        plt.plot(hori_proj)
-
-        vert_mins = np.where(vert_proj < vert_proj.min() * (1 + similar))
-        hori_mins = np.where(hori_proj < hori_proj.min() * (1 + similar))
-        x1, x2 = hori_mins[0].min(), hori_mins[0].max()
-        y1, y2 = vert_mins[0].min(), vert_mins[0].max()
-        
-        cropped = im[x1:x2, y1:y2]
-        if (cropped.size / im.size) < size_min_ratio:
-            return im[0, 0]
-        return im[x1:x2, y1:y2]
     
     # Take unique screenshots of the video (frame_same() is used to determine similarity)
     def take_screenies(self, interval = 100, bw_ratio_min = 0.2):
@@ -125,19 +91,15 @@ class Screenie():
             if not ret: break
             # for every $interval frames
             if count % interval == 0:
-                if self.thresholding:
-                    frame = self.grayscale(frame)
                 # Remove non sheet music portions
                 if self.trim:
                     frame = self.contours(frame)
-                    #frame = self.crop_ends(frame)
                 # Minimum image size, minimum black white ratio
                 if (frame.size >= 1000) and (self.bw_ratio(frame) > bw_ratio_min):
                     # If it's similar to previous frame, ignore
                     if ((isinstance(prev_frame, int)) or (not self.frame_same(frame, prev_frame))):
                         name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(3))
-                        print("Creating ", name)
-                        print(count)
+                        print(f"Creating {name} at frame {count}")
                         cv.imwrite(name, frame)
                         prev_frame = frame
                         name_count += 1
@@ -145,7 +107,9 @@ class Screenie():
             
         vid.release()
         cv.destroyAllWindows()
-
+        
+  
+        
 # Show an image
 def show(ims):
     if isinstance(ims, list):

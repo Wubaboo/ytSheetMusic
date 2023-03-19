@@ -3,6 +3,9 @@ from screenshot import Screenie
 from combine import Join
 import sys
 import os
+from awsServices import bucket, getFiles, downloadFile, deleteFile
+import json
+import shutil
 
 '''
 From a Youtube Video where video is sheet music, 
@@ -15,21 +18,61 @@ Take screenshots and join screenshots into sheet music
 
 # url: path to the Youtube Video
 # file_name: Name to save the downloaded video and the final pdf
-# trim : If there is a border around the sheet music, it can be cropped out
 # hands: if there are hands in the picture (or non sheet music elements)
-def main(url, file_name, trim = True, thresholding = False, hands = False):
+def main(url, file_name=None, hands = False, threshold=0.9):
+    if not file_name:
+        base_url, delimiter, file_name = url.rpartition('watch?v=')
+        
+    allFiles = getFiles(bucket)
+    if file_name in allFiles:
+        return json.dumps({'filename': file_name})
+    
     folder_name = ''.join(file_name.split(' '))
     try:
         if file_name + '.mp4' not in os.listdir():
             v = Video(url)
             v.download(file_name, form = 'mp4')
-            
-        s = Screenie(file_name +'.mp4', fname = folder_name, thresholding = thresholding, hands = hands)
-        s.take_screenies()
         
+        print('Taking Screenie')
+        s = Screenie(file_name +'.mp4', fname = folder_name, hands = hands, threshold=threshold)
+        s.take_screenies()
+        print('Uploading Images')
+        s.upload_images()
+        
+        deleteFile(f'{url}/{url}.pdf')
         j = Join(folder_name)
         j.save(file_name + '.pdf')
+        j.upload_file(file_name +'.pdf')
+        
+        cleanup(file_name)
+        return json.dumps({'filename': file_name})
         
     except:
         print("Error")
+        return None
 
+def cleanup(filename):
+    if f'{filename}.mp4' in os.listdir():
+        os.remove(f'{filename}.mp4')
+    if f'{filename}' in os.listdir():
+        shutil.rmtree(f'{filename}')
+    
+# Given the url path and an array of frames, combine the images and save a pdf
+def customCombine(filename, files):
+    deleteFile(f'{filename}/{filename}.pdf')
+    for f in files:
+        fullName=f"{filename}/{f}"
+        downloadFile(fullName, fullName, bucket)
+        print(f'downloaded {fullName}')
+    j = Join(filename)
+    j.save(f"{filename}.pdf")
+    j.upload_file(f"{filename}.pdf")
+    cleanup(filename)
+
+def getBucketFiles(filename):
+    allFiles = getFiles(bucket, prefix=filename)
+    return allFiles
+    
+
+    
+    
