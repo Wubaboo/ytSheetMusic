@@ -6,6 +6,8 @@ import os
 from awsServices import bucket, getFiles, downloadFile, deleteFile
 import json
 import shutil
+from datetime import datetime
+
 
 '''
 From a Youtube Video where video is sheet music, 
@@ -24,7 +26,7 @@ def main(url, file_name=None, hands = False, threshold=0.9):
         base_url, delimiter, file_name = url.rpartition('watch?v=')
         
     allFiles = getFiles(bucket)
-    if file_name in allFiles:
+    if file_name in allFiles and threshold == 0.9:
         return json.dumps({'filename': file_name})
     
     folder_name = ''.join(file_name.split(' '))
@@ -64,10 +66,14 @@ def customCombine(filename, files):
         fullName=f"{filename}/{f}"
         downloadFile(fullName, fullName, bucket)
         print(f'downloaded {fullName}')
+    
+    timeStr = str(datetime.now()).replace('.', '-').replace(':', '-').replace(' ', '-')
+    newFile = f"{filename}_{timeStr}.pdf"
     j = Join(filename)
-    j.save(f"{filename}.pdf")
-    j.upload_file(f"{filename}.pdf")
+    j.save(newFile)
+    j.upload_file(newFile)
     cleanup(filename)
+    return newFile
 
 def getBucketFiles(filename):
     allFiles = getFiles(bucket, prefix=filename)

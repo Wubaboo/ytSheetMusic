@@ -51,12 +51,14 @@ body is a JSON with an array of frames
 def combine(url):
     try:
         data = request.get_json()
-        print('data', url)
+        print('data', data, url)
+        
         if 'data' in data:
-            customCombine(url, data['data'])
+            images_array = json.loads(data['data'])
+            newFile = customCombine(url, images_array)
         else:
             return "Need 'data' field in body, with an array of frames", 400
-        return json.dumps({'data': data, 'url': url})
+        return json.dumps({'data': data, 'url': url, 'filename': newFile})
     except:
         return "Error", 500
 

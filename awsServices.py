@@ -15,7 +15,7 @@ def downloadFile(filename, destination, bucket):
     bucket.download_file(Key=filename, Filename=destination)
     
 def deleteFile(filename, bucket_name='ytsheetmusic'):
-    s3.Object(bucket_name, filename).delete()
+    s3.meta.client.delete_object(Bucket=bucket_name, Key=filename)
 
 def getFiles(bucket, prefix=''):
     items = defaultdict(list)
