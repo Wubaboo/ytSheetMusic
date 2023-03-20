@@ -1,16 +1,20 @@
-from flask import Flask, request
+from flask import Flask, request, Response
+from flask_cors import CORS
 from main import main, customCombine, getBucketFiles
 import json
 from waitress import serve
 
 app = Flask(__name__)
+CORS(app)
 
 '''
 placeholder
 '''
 @app.get("/")
 def hello_world():
-    return "<h1>ytSheetMusic</h1>"
+    res = Response("<h1>ytSheetMusic</h1>")
+    res.headers['Access-Control-Allow-Origin'] = '*'
+    return res
 
 
 '''
@@ -20,6 +24,7 @@ body specifies
 @app.post('/')
 def post():
     data = request.get_json()
+
     threshold = 0.9
     hands = False
     if not 'url' in data:
@@ -29,8 +34,11 @@ def post():
     if 'hands' in data and data['hands']:
         hands = True
     try:
-        res = main(data['url'], hands = hands, threshold = threshold)
-        return res
+        # res = Response(main(data['url'], hands = hands, threshold = threshold))
+        # res.headers.add('Access-Control-Allow-Origin', '*')
+        # res.headers.add('Access-Control-Allow-Methods', '*')
+        # res.headers.add('Access-Control-Allow-Headers', '*')
+        return main(data['url'], hands = hands, threshold = threshold)
     except:
         print('error')
         return "Error", 500
