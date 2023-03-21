@@ -26,7 +26,7 @@ def main(url, file_name=None, hands = False, threshold=0.9):
         base_url, delimiter, file_name = url.rpartition('watch?v=')
         
     allFiles = getFiles(bucket)
-    if file_name in allFiles and threshold == 0.9:
+    if file_name in allFiles and threshold == 0.9 and not hands and f"{file_name}.pdf" in allFiles[file_name]:
         return json.dumps({'filename': file_name})
     
     folder_name = ''.join(file_name.split(' '))

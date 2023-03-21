@@ -5,6 +5,7 @@ import json
 from waitress import serve
 
 app = Flask(__name__)
+app.config['CORS_HEADERS'] = "Content-Type"
 CORS(app)
 
 '''
@@ -13,7 +14,9 @@ placeholder
 @app.get("/")
 def hello_world():
     res = Response("<h1>ytSheetMusic</h1>")
-    res.headers['Access-Control-Allow-Origin'] = '*'
+    # res.headers['Access-Control-Allow-Origin'] = '*'
+    # res.headers.add('Access-Control-Allow-Methods', '*')
+    # res.headers.add('Access-Control-Allow-Headers', '*')
     return res
 
 
@@ -34,11 +37,12 @@ def post():
     if 'hands' in data and data['hands']:
         hands = True
     try:
-        # res = Response(main(data['url'], hands = hands, threshold = threshold))
-        # res.headers.add('Access-Control-Allow-Origin', '*')
-        # res.headers.add('Access-Control-Allow-Methods', '*')
-        # res.headers.add('Access-Control-Allow-Headers', '*')
-        return main(data['url'], hands = hands, threshold = threshold)
+        print("calling main")
+        res = Response(main(data['url'], hands = hands, threshold = threshold))
+        res.headers.add('Access-Control-Allow-Origin', '*')
+        res.headers.add('Access-Control-Allow-Methods', '*')
+        res.headers.add('Access-Control-Allow-Headers', '*')
+        return res
     except:
         print('error')
         return "Error", 500
@@ -68,8 +72,7 @@ Get all the files relevant to the URL (screenshots and pdf if available)
 @app.get('/<url>')
 def getImages(url):
     return json.dumps(getBucketFiles(url))
-    
-    
 
-# if __name__ == '__main__':
-#     serve(app, host='0.0.0.0', port=8080)
+if __name__ == '__main__':
+    app.run(host ='0.0.0.0', port=8080)#, ssl_context=("./server.crt", "./server.key"))
+    serve(app, host='0.0.0.0', port=8080)
