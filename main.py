@@ -7,6 +7,8 @@ from awsServices import bucket, getFiles, downloadFile, deleteFile
 import json
 import shutil
 from datetime import datetime
+import gc
+import time
 
 
 '''
@@ -26,7 +28,7 @@ def main(url, file_name=None, hands = False, threshold=0.9):
         base_url, delimiter, file_name = url.rpartition('watch?v=')
         
     allFiles = getFiles(bucket)
-    if file_name in allFiles and threshold == 0.9 and not hands and f"{file_name}.pdf" in allFiles[file_name]:
+    if file_name in allFiles and threshold == 0.9 and f"{file_name}.pdf" in allFiles[file_name]:
         return json.dumps({'filename': file_name})
     
     folder_name = ''.join(file_name.split(' '))
@@ -34,18 +36,20 @@ def main(url, file_name=None, hands = False, threshold=0.9):
         if file_name + '.mp4' not in os.listdir():
             v = Video(url)
             v.download(file_name, form = 'mp4')
-        
+            del v
         print('Taking Screenie')
         s = Screenie(file_name +'.mp4', fname = folder_name, hands = hands, threshold=threshold)
         s.take_screenies()
         print('Uploading Images')
         s.upload_images()
-        
+        del s
+        gc.collect()
         deleteFile(f'{url}/{url}.pdf')
-        j = Join(folder_name)
+        j = Join(folder_name)      
         j.save(file_name + '.pdf')
         j.upload_file(file_name +'.pdf')
-        
+        del j
+        gc.collect()
         cleanup(file_name)
         return json.dumps({'filename': file_name})
         
@@ -61,7 +65,6 @@ def cleanup(filename):
     
 # Given the url path and an array of frames, combine the images and save a pdf
 def customCombine(filename, files):
-    deleteFile(f'{filename}/{filename}.pdf')
     for f in files:
         fullName=f"{filename}/{f}"
         downloadFile(fullName, fullName, bucket)

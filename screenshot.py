@@ -27,7 +27,7 @@ class Screenie():
     def make_folder(self, name = 'screenies'):
         try:
             if not os.path.exists(name):
-                os.makedirs(name)
+                os.makedirs(name, mode=0o777)
             return name
         except:
             return 'screenies'
@@ -101,6 +101,7 @@ class Screenie():
                         name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(3))
                         print(f"Creating {name} at frame {count}")
                         cv.imwrite(name, frame)
+                        os.chmod(name, 0o777)
                         prev_frame = frame
                         name_count += 1
             count += 1

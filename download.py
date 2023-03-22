@@ -6,6 +6,7 @@ import os
 ## url = 'https://www.youtube.com/watch?v=-qPark5JTOo'
 ## v = Video(url)
 ## v.download('All I want for Christmas')
+reduce resolution with : -S "res:480"
 '''
 
 class Video():

@@ -6,12 +6,15 @@ s3 = boto3.resource('s3')
 
 bucket = s3.Bucket(name="ytsheetmusic")
 
-def uploadFile(filename, bucket):    
+def uploadFile(filename, bucket, pdf=False):
+    if type:    
+        bucket.upload_file(Filename=filename,  Key=filename, ExtraArgs={'ContentType': "application/pdf"})
+        return
     bucket.upload_file(Filename=filename,  Key=filename)
 
 def downloadFile(filename, destination, bucket):
     if not os.path.exists(os.path.dirname(filename)):
-        os.makedirs(os.path.dirname(filename))
+        os.makedirs(os.path.dirname(filename), mode=0o777)
     bucket.download_file(Key=filename, Filename=destination)
     
 def deleteFile(filename, bucket_name='ytsheetmusic'):
