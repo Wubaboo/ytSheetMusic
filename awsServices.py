@@ -7,7 +7,7 @@ s3 = boto3.resource('s3')
 bucket = s3.Bucket(name="ytsheetmusic")
 
 def uploadFile(filename, bucket, pdf=False):
-    if type:    
+    if pdf:    
         bucket.upload_file(Filename=filename,  Key=filename, ExtraArgs={'ContentType': "application/pdf"})
         return
     bucket.upload_file(Filename=filename,  Key=filename)

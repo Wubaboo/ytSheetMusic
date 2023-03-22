@@ -42,14 +42,14 @@ def main(url, file_name=None, hands = False, threshold=0.9):
         s.take_screenies()
         print('Uploading Images')
         s.upload_images()
-        del s
-        gc.collect()
+        # del s
+        # gc.collect()
         deleteFile(f'{url}/{url}.pdf')
         j = Join(folder_name)      
         j.save(file_name + '.pdf')
         j.upload_file(file_name +'.pdf')
-        del j
-        gc.collect()
+        # del j
+        # gc.collect()
         cleanup(file_name)
         return json.dumps({'filename': file_name})
         
