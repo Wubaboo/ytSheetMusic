@@ -48,15 +48,17 @@ class Join():
             if i.endswith('.jpg'):
                 prefix, ext = i.split('_')
                 new = self.resize_img(self.trim_img(Image.open('{}/{}'.format(folder, i))))
-                new.save(f'{folder}/processed_{ext}')
+                if new:
+                    new.save(f'{folder}/processed_{ext}')
                 del new
     
     # Resize images so image width fits page width
     def resize_img(self, img):
-        width, height = img.width, img.height
-        ratio = self.page_size[0]/width
-        print(psutil.Process().memory_info().rss/ 1024 ** 2)
-        return img.resize((int(width * ratio), int(height * ratio)), Image.LANCZOS)
+        if img:
+            width, height = img.width, img.height
+            ratio = self.page_size[0]/width
+            print(psutil.Process().memory_info().rss/ 1024 ** 2)
+            return img.resize((int(width * ratio), int(height * ratio)), Image.LANCZOS)
     
     # Trim borders around image
     # Stolen from: https://stackoverflow.com/questions/10615901/trim-whitespace-using-pil/10616717#10616717
