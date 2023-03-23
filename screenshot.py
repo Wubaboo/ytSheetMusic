@@ -68,12 +68,14 @@ class Screenie():
         # Find contours in the image and get the contour with second largest area
         # (First largest contour is the entire frame)
         contours, hierarchy = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
-        if len(contours) < 1:
-            return img[0:0, 0:0]
+        if len(contours) <= 1:
+            return img[0:1, 0:1]
         contours = sorted(contours, key = lambda c: cv.contourArea(c))
         largest = contours[-1]
         con_min = largest.min(0)[0]
         con_max = largest.max(0)[0]
+        if con_min[0] == con_max[0] and con_min[1] == con_max[1]:
+            return img[0:1, 0:1]
         # Crop relevant area
         return img[con_min[1]:con_max[1], con_min[0]:con_max[0]]
     
