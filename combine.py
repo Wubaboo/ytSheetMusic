@@ -105,6 +105,7 @@ class Join():
         print('saving')
         if not os.path.exists(self.folder):
             os.makedirs(self.folder, mode=0o777)
+            
         self.pages[0].save(f"{self.folder}/{fname}",
                            resolution = 300, save_all = True, append_images=self.pages[1:])
         

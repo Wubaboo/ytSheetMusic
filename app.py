@@ -13,9 +13,9 @@ placeholder
 @app.get("/")
 def hello_world():
     res = Response("<h1>ytSheetMusic</h1>")
-    #res.headers.add('Access-Control-Allow-Origin','*') 
-    #res.headers.add('Access-Control-Allow-Methods', '*')
-    #res.headers.add('Access-Control-Allow-Headers', '*')
+    # res.headers.add('Access-Control-Allow-Origin','*') 
+    # res.headers.add('Access-Control-Allow-Methods', '*')
+    # res.headers.add('Access-Control-Allow-Headers', '*')
     return res
 
 
@@ -25,10 +25,12 @@ body specifies
 '''
 @app.post('/')
 def post():
+    print("in post")
     data = request.get_json()
     print(data)
     threshold = 0.9
     hands = False
+    print("data")
     if not 'url' in data:
         return "Include 'url' in body", 400
     if 'threshold' in data:

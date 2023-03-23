@@ -1,5 +1,5 @@
 import cv2 as cv
-import os
+import os, psutil
 from skimage.metrics import structural_similarity as ssim
 import numpy as np
 from awsServices import bucket, uploadFile
@@ -38,15 +38,22 @@ class Screenie():
             thresh = self.threshold
         # turn images black and white
         img1_gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+        print('cvt1')
         img1_inverse = 255 - img1_gray
         img2_gray = cv.cvtColor(img2, cv.COLOR_BGR2GRAY) 
+        print('cvt2')
         img2_inverse = 255 - img2_gray
         img1 = cv.threshold(img1_inverse, 150, 255, cv.THRESH_BINARY)[1]
+        print('thresh1')
         img2 = cv.threshold(img2_inverse, 150, 255, cv.THRESH_BINARY)[1]
+        print('thresh2')
         # Resize images to the same shape, and compare the similarities
         im2 = cv.resize(img2, (img1.shape[1],img1.shape[0]))
+        print('resize1')
         im1 = cv.resize(img1, (img2.shape[1], img2.shape[0]))
+        print('resize2')
         score = max(ssim(img1, im2), ssim(img2, im1))
+        print(score)
         return score >= thresh
     
     
@@ -73,15 +80,13 @@ class Screenie():
     # Find the ratio between black and white pixels and coloured pixels
     def bw_ratio(self, im, black = 10, white = 245):
         gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
-        
         b_pixels = np.where(gray <= black)
         w_pixels = np.where(gray >= white)
         return (len(b_pixels[0]) + len(w_pixels[0])) / gray.size
     
     # Take unique screenshots of the video (frame_same() is used to determine similarity)
-    def take_screenies(self, interval = 100, bw_ratio_min = 0.2):
+    def take_screenies(self, interval = 100, bw_ratio_min = 0.05):
         vid = cv.VideoCapture(self.path)
-        
         count = 0
         name_count = 0 
         prev_frame = 0
@@ -92,8 +97,11 @@ class Screenie():
             # for every $interval frames
             if count % interval == 0:
                 # Remove non sheet music portions
+                print('in count%interval')
                 if self.trim:
                     frame = self.contours(frame)
+   
+                print('bwratio', self.bw_ratio(frame))
                 # Minimum image size, minimum black white ratio
                 if (frame.size >= 1000) and (self.bw_ratio(frame) > bw_ratio_min):
                     # If it's similar to previous frame, ignore
@@ -104,6 +112,7 @@ class Screenie():
                         os.chmod(name, 0o777)
                         prev_frame = frame
                         name_count += 1
+                        print(psutil.Process().memory_info().rss/ 1024 ** 2)
             count += 1
             
         vid.release()
