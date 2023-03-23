@@ -87,7 +87,7 @@ class Screenie():
         return (len(b_pixels[0]) + len(w_pixels[0])) / gray.size
     
     # Take unique screenshots of the video (frame_same() is used to determine similarity)
-    def take_screenies(self, interval = 100, bw_ratio_min = 0.05):
+    def take_screenies(self, interval = 100, bw_ratio_min = 0.00):
         vid = cv.VideoCapture(self.path)
         count = 0
         name_count = 0 
@@ -105,7 +105,7 @@ class Screenie():
    
                 print('bwratio', self.bw_ratio(frame))
                 # Minimum image size, minimum black white ratio
-                if (frame.size >= 1000) and (self.bw_ratio(frame) > bw_ratio_min):
+                if (frame.size >= 1000): # and (self.bw_ratio(frame) > bw_ratio_min):
                     # If it's similar to previous frame, ignore
                     if ((isinstance(prev_frame, int)) or (not self.frame_same(frame, prev_frame))):
                         name = self.res_path + '/frame_{}.jpg'.format(str(name_count).zfill(3))
