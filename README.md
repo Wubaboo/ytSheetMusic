@@ -3,8 +3,10 @@
 
 Get sheet music from youtube videos 
   - downloads, screenshots, crops, and combines sheet music elements
+![ytSheetMusic](https://github.com/Wubaboo/ytSheetMusic/assets/59407231/05467c91-6bbb-4f25-a669-2e169cfc87d7)
 
 **main.py**: 
+
   - Creates subsequent object classes and calls methods
   - *Usage*: main(url, file_name, thresholding = False, hands = False)
     - url (str): path to the Youtube Video
